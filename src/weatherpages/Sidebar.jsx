@@ -12,11 +12,9 @@ import { CloudSun, LayoutDashboard, MessageSquare, Heart, Settings, LogOut, Menu
 import { useWeather } from "../WeatherContext/WeatherContext";
 
 export default function DashboardPage() {
-  // Auth state
+  
   const [user, setUser] = useState(null);
   const navigate = useNavigate(); 
-  
-  // State for mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   const {
@@ -36,12 +34,12 @@ export default function DashboardPage() {
     updateSettings
   } = useWeather();
 
-  // Toggle sidebar function
+  
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Close sidebar on navigation (for better UX in mobile)
+  
   const handleNavigation = (page) => {
     navigateTo(page);
     setSidebarOpen(false);
@@ -118,7 +116,7 @@ export default function DashboardPage() {
     }
   };
 
-  // Sidebar content component to avoid duplication
+  
   const SidebarContent = ({ isMobile = false }) => (
     <div className="flex flex-col h-full">
       <div className="flex h-16 items-center border-b border-gray-300 px-4">

@@ -39,7 +39,6 @@ const SignUp =()=> {
       navigate("/login");
     } catch(error) {
       console.error("Registration Error", error);
-      // Extract error message instead of using the error object directly
       setErrorMsg(error.message || "Failed to create account");
     } finally {
       setLoading(false);

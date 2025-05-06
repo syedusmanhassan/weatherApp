@@ -20,13 +20,12 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef(null);
   
-  // Store API key in a constant (in a real app, use environment variables)
-  // Important: In production, NEVER expose API keys in frontend code
+ 
   const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
   
-  // Suggested questions based on aiTone
+  
   const getSuggestedQuestions = () => {
-    // Default questions
+  
     const defaultQuestions = [
       "What should I wear today?",
       "Is it a good day for a picnic?",
@@ -34,7 +33,7 @@ export default function ChatPage() {
       "How's the weekend weather looking?"
     ];
     
-    // Tone-specific questions
+  
     switch(aiTone) {
       case 'Professional':
         return [
@@ -63,17 +62,17 @@ export default function ChatPage() {
     }
   };
   
-  // Get tone-adjusted questions
+ 
   const suggestedQuestions = getSuggestedQuestions();
   
-  // Auto-scroll to bottom when messages change
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   
-  // Effect to update welcome message when aiTone changes
+
   useEffect(() => {
-    // Only update if there's only the initial message
+   
     if (messages.length === 1 && messages[0].id === 1) {
       const welcomeMessages = {
         'Professional': "Good day. I'm your SkySage weather assistant. How may I help you with weather information today?",
@@ -91,14 +90,14 @@ export default function ChatPage() {
     }
   }, [aiTone]);
   
-  // Function to get response from Gemini API with tone adjustment
+  
   const getGeminiResponse = async (userPrompt) => {
     try {
       setIsLoading(true);
       
       const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
       
-      // Define tone instructions based on aiTone setting
+      
       const toneInstructions = {
         'Professional': "Use professional language. Be formal, precise and thorough in your responses. Use industry-appropriate terminology when relevant. Maintain a respectful and business-like tone.",
         'Friendly': "Be warm, conversational and approachable. Use friendly language with occasional exclamation points! Feel free to use casual expressions and show enthusiasm. Make the user feel like they're talking to a friend.",
@@ -106,7 +105,7 @@ export default function ChatPage() {
         'Casual': "Use a relaxed, everyday conversational style. Be helpful and informative while maintaining a casual tone. Feel free to use contractions and common expressions."
       };
       
-      // Get the appropriate tone instruction or default to Casual
+    
       const toneInstruction = toneInstructions[aiTone] || toneInstructions['Casual'];
       
       const requestBody = {
@@ -145,7 +144,7 @@ Here's the user query: ${userPrompt}`
       
       const data = await response.json();
       
-      // Extract text from the response
+      
       const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || 
                           "Sorry, I couldn't generate a response. Please try again.";
                           
@@ -158,11 +157,11 @@ Here's the user query: ${userPrompt}`
     }
   };
   
-  // Handle sending a message
+ 
   const handleSendMessage = async (text) => {
     if (!text.trim()) return;
     
-    // Get current time
+   
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
@@ -171,7 +170,7 @@ Here's the user query: ${userPrompt}`
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
     const timestamp = `${formattedHours}:${formattedMinutes} ${ampm}`;
     
-    // Add user message
+    
     const newMessage = {
       id: messages.length + 1,
       sender: 'user',
@@ -182,10 +181,10 @@ Here's the user query: ${userPrompt}`
     setMessages(prev => [...prev, newMessage]);
     setInputValue('');
     
-    // Get response from Gemini API
+    
     const geminiResponse = await getGeminiResponse(text);
     
-    // Add assistant response
+   
     const assistantResponse = {
       id: messages.length + 2,
       sender: 'assistant',
@@ -196,17 +195,17 @@ Here's the user query: ${userPrompt}`
     setMessages(prev => [...prev, assistantResponse]);
   };
   
-  // Handle question suggestion click
+
   const handleSuggestionClick = (question) => {
     handleSendMessage(question);
   };
   
-  // Handle form submission
+  
   const handleSubmit = () => {
     handleSendMessage(inputValue);
   };
   
-  // Handle Enter key press
+  
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -214,11 +213,11 @@ Here's the user query: ${userPrompt}`
     }
   };
   
-  // Get CSS class for chat container based on tone
+ 
   const getChatContainerClass = () => {
     const baseClass = "flex flex-1 flex-col h-screen";
     
-    // Add tone-specific styling
+   
     switch(aiTone) {
       case 'Professional':
         return `${baseClass} bg-gray-50`;

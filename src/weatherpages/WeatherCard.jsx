@@ -3,7 +3,6 @@ import { Cloud, Droplets, Thermometer, Wind, CloudRain, CloudSnow, CloudLightnin
 import { useWeather } from "../WeatherContext/WeatherContext"
 
 export default function WeatherCard() {
-  // Use the context instead of props
   const { 
     searchCity, 
     temperatureUnit, 
@@ -18,7 +17,7 @@ export default function WeatherCard() {
   const [displayCity, setDisplayCity] = useState(searchCity);
 
   useEffect(() => {
-    // Update displayCity when searchCity from context changes
+
     setDisplayCity(searchCity);
   }, [searchCity]);
 
@@ -26,9 +25,9 @@ export default function WeatherCard() {
     const fetchWeatherData = async () => {
       setLoading(true);
       try {
-        // Replace with your actual API key
+        
         const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
-        // Always fetch in imperial (Fahrenheit) and convert as needed
+  
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?q=${displayCity}&units=imperial&appid=${apiKey}`
         );
@@ -56,12 +55,12 @@ export default function WeatherCard() {
       const newCity = e.target.value;
       setDisplayCity(newCity);
       
-      // Use the context function to update global state
+     
       handleCityChange(newCity);
     }
   };
 
-  // Handle favorite toggle
+ 
   const toggleFavorite = () => {
     if (!weatherData) return;
     
@@ -77,21 +76,20 @@ export default function WeatherCard() {
     addToFavorites(location);
   };
 
-  // Convert temperature based on user preference from context
+ 
   const convertTemperature = (fahrenheit) => {
     if (temperatureUnit === "celsius") {
-      // Convert Fahrenheit to Celsius: (F - 32) * 5/9
       return Math.round((fahrenheit - 32) * 5 / 9);
     }
     return Math.round(fahrenheit);
   };
 
-  // Get the temperature unit symbol from context
+  
   const getTemperatureSymbol = () => {
     return temperatureUnit === "celsius" ? "°C" : "°F";
   };
 
-  // Get icon name for storing in favorites
+ 
   const getWeatherIconName = (weatherCode) => {
     if (weatherCode >= 200 && weatherCode < 300) return "lightning";
     if (weatherCode >= 300 && weatherCode < 600) return "rain";
@@ -101,36 +99,36 @@ export default function WeatherCard() {
     return "cloud";
   };
 
-  // Helper function to get the appropriate weather icon
+ 
   const getWeatherIcon = (weatherCode) => {
     if (!weatherCode) return <Cloud className="h-10 w-10 text-sky-500" />;
     
-    // Map OpenWeather codes to appropriate icons
+    
     if (weatherCode >= 200 && weatherCode < 300) {
-      return <CloudLightning className="h-10 w-10 text-purple-500" />; // Thunderstorm
+      return <CloudLightning className="h-10 w-10 text-purple-500" />; 
     } else if (weatherCode >= 300 && weatherCode < 600) {
-      return <CloudRain className="h-10 w-10 text-blue-500" />; // Rain
+      return <CloudRain className="h-10 w-10 text-blue-500" />; 
     } else if (weatherCode >= 600 && weatherCode < 700) {
-      return <CloudSnow className="h-10 w-10 text-blue-200" />; // Snow
+      return <CloudSnow className="h-10 w-10 text-blue-200" />;
     } else if (weatherCode >= 700 && weatherCode < 800) {
-      return <CloudFog className="h-10 w-10 text-gray-400" />; // Atmosphere (fog, mist, etc.)
+      return <CloudFog className="h-10 w-10 text-gray-400" />; 
     } else if (weatherCode === 800) {
-      return <Sun className="h-10 w-10 text-yellow-500" />; // Clear sky
+      return <Sun className="h-10 w-10 text-yellow-500" />; 
     } else {
-      return <Cloud className="h-10 w-10 text-sky-500" />; // Clouds
+      return <Cloud className="h-10 w-10 text-sky-500" />; 
     }
   };
 
   const getWeatherAdvice = (data) => {
     if (!data) return "";
     
-    // Use the converted temperature for advice
+   
     const temp = temperatureUnit === "celsius" 
       ? convertTemperature(data.main.temp)
       : data.main.temp;
     const weather = data.weather[0].main.toLowerCase();
     
-    // Temperature thresholds adjusted for Celsius if needed
+   
     const isHot = temperatureUnit === "celsius" ? temp > 29 : temp > 85;
     const isCold = temperatureUnit === "celsius" ? temp < 4 : temp < 40;
     const isIdeal = temperatureUnit === "celsius" 
@@ -154,7 +152,7 @@ export default function WeatherCard() {
     }
   };
 
-  // Helper component for weather statistics
+  
   const WeatherStat = ({ icon, label, value }) => {
     return (
       <div className="flex flex-col items-center rounded-lg bg-gray-100/50 p-2 dark:bg-gray-700/50">

@@ -9,14 +9,14 @@ export function SettingsPage({ onUpdateSettings }) {
     darkMode
   } = useWeather();
 
-  // Local state for dropdown menus
+  
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
   const [aiToneDropdownOpen, setAiToneDropdownOpen] = useState(false);
   
-  // Add toast notification state
+
   const [showToast, setShowToast] = useState(false);
   
-  // Local state for handling changes before saving
+  
   const [tempSettings, setTempSettings] = useState({
     temperatureUnit,
     darkMode,
@@ -25,7 +25,7 @@ export function SettingsPage({ onUpdateSettings }) {
     notifications: false
   });
   
-  // Location options
+ 
   const locations = [
     "New York, United States",
     "London, United Kingdom",
@@ -36,7 +36,7 @@ export function SettingsPage({ onUpdateSettings }) {
   
   const tones = ["Casual", "Professional", "Friendly", "Concise"];
   
-  // Auto-hide toast after 3 seconds
+  
   useEffect(() => {
     if (showToast) {
       const timer = setTimeout(() => {
@@ -70,14 +70,12 @@ export function SettingsPage({ onUpdateSettings }) {
   
   const handleSave = () => {
     onUpdateSettings(tempSettings);
-    // Show toast instead of alert
     setShowToast(true);
   };
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden relative">
       
-      {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 shadow-md border border-green-200 animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100">

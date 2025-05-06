@@ -9,7 +9,6 @@ export function ProtectedRoute({ children }) {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
-        // User is not authenticated, redirect to login
         navigate('/login');
       }
       setLoading(false);

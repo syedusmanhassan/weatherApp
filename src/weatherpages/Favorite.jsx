@@ -3,7 +3,7 @@ import { MapPin, Star, ArrowRight, Trash2, Cloud, Sun, CloudRain } from 'lucide-
 import { useWeather } from "../WeatherContext/WeatherContext"
 
 export default function FavoriteCard() {
-  // Use the custom hook to access the context values
+  
   const {
     favorites,
     setDefaultLocation,
@@ -23,7 +23,7 @@ export default function FavoriteCard() {
     }
   };
 
-  // Handle when no locations are saved
+ 
   if (!favorites || favorites.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">

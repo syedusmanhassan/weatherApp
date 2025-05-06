@@ -38,7 +38,7 @@ export default function SearchComponent() {
  
   useEffect(() => {
     if (searchCity) {
-      // Extract just the city name if it contains a comma
+      
       const cityName = searchCity.split(',')[0].trim();
       setSearchTerm(cityName);
     }

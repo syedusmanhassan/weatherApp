@@ -26,8 +26,7 @@ export function Forecast() {
         }
         
         const data = await response.json();
-        
-        // Process the forecast data
+  
         const processedForecast = processForecastData(data);
         setForecast(processedForecast);
       } catch (err) {
@@ -41,12 +40,11 @@ export function Forecast() {
     fetchWeather();
   }, [searchCity]);
 
-  // Process the raw forecast data to get daily forecasts
+  
   const processForecastData = (data) => {
     const dailyForecasts = [];
     const forecastsByDay = {};
     
-    // Group forecasts by day
     data.list.forEach(item => {
       const date = new Date(item.dt * 1000);
       const day = date.toDateString();
@@ -58,15 +56,15 @@ export function Forecast() {
       forecastsByDay[day].push(item);
     });
     
-    // Get min and max temps for each day
+   
     Object.keys(forecastsByDay).forEach((day, index) => {
-      if (index < 3) { // Only take the first 3 days
+      if (index < 3) { 
         const forecasts = forecastsByDay[day];
         const temps = forecasts.map(f => f.main.temp);
         const high = Math.round(Math.max(...temps));
         const low = Math.round(Math.min(...temps));
         
-        // Get the most common weather condition for the day
+       
         const conditions = forecasts.map(f => f.weather[0].main);
         const mostCommonCondition = getMostCommonItem(conditions);
         
@@ -94,7 +92,6 @@ export function Forecast() {
     return dailyForecasts;
   };
 
-  // Helper function to get the most common item in an array
   const getMostCommonItem = (arr) => {
     const counts = {};
     let maxCount = 0;
@@ -111,21 +108,20 @@ export function Forecast() {
     return mostCommon;
   };
 
-  // Convert temperature based on user preference
+  
   const convertTemperature = (fahrenheit) => {
     if (temperatureUnit === "celsius") {
-      // Convert Fahrenheit to Celsius: (F - 32) * 5/9
       return Math.round((fahrenheit - 32) * 5 / 9);
     }
     return Math.round(fahrenheit);
   };
 
-  // Get the temperature unit symbol
+  
   const getTemperatureSymbol = () => {
     return temperatureUnit === "celsius" ? "°C" : "°F";
   };
 
-  // Function to determine which weather icon to use
+ 
   const getWeatherIcon = (condition) => {
     switch (condition) {
       case "Clear":

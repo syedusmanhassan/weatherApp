@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, User, Lock, CloudSun, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { Mail, User, Lock, CloudSun, AlertTriangle, CheckCircle, Info, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, getDocs, query, collection, where } from 'firebase/firestore';
@@ -9,10 +9,10 @@ const SignUp = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState({ field: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -30,29 +30,9 @@ const SignUp = () => {
       return false;
     }
 
-    // Password validation
-    if (password.length < 6) {
-      setError({ field: 'password', message: 'Password must be at least 6 characters long' });
-      return false;
-    }
-
-    // Check for at least one number and one special character
-    const numberRegex = /[0-9]/;
-    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
-    
-    if (!numberRegex.test(password)) {
-      setError({ field: 'password', message: 'Password must contain at least one number' });
-      return false;
-    }
-    
-    if (!specialCharRegex.test(password)) {
-      setError({ field: 'password', message: 'Password must contain at least one special character' });
-      return false;
-    }
-
-    // Password confirmation
-    if (password !== confirmPassword) {
-      setError({ field: 'confirmPassword', message: 'Passwords do not match' });
+    // Password validation - now requires 8 characters minimum
+    if (password.length < 8) {
+      setError({ field: 'password', message: 'Password must be at least 8 characters long' });
       return false;
     }
 
@@ -125,36 +105,36 @@ const SignUp = () => {
   };
 
   const getInputClasses = (field) => {
-    const baseClasses = "flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10";
+    const baseClasses = "flex h-10 w-full rounded-md border px-3 py-2 text-sm ring-offset-white dark:ring-offset-gray-900 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10";
     
     if (error.field === field) {
-      return `${baseClasses} border-red-500 focus-visible:ring-red-500`;
+      return `${baseClasses} border-red-500 bg-red-50 dark:bg-red-900/10 focus-visible:ring-red-500`;
     }
-    return `${baseClasses} border-gray-300 focus-visible:ring-[#2563EB]`;
+    return `${baseClasses} border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus-visible:ring-[#2563EB]`;
   };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-sky-50 to-white p-4 dark:from-sky-950 dark:to-gray-900">
       <a href="/" className="mb-8 flex items-center gap-2">
         <CloudSun className="h-6 w-6 text-sky-500" />
-        <span className="text-xl font-bold">SkySage</span>
+        <span className="text-xl font-bold dark:text-white">SkySage</span>
       </a>
 
-      <div className="rounded-lg bg-white text-gray-900 shadow-sm w-full max-w-md">
+      <div className="rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm w-full max-w-md">
         <div className="flex flex-col p-6 space-y-1">
           <h3 className="font-semibold tracking-tight text-2xl">Create an account</h3>
-          <p className="text-sm text-gray-500">Enter your information to create your SkySage account</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Enter your information to create your SkySage account</p>
         </div>
 
         {success && (
-          <div className="mx-6 mb-4 flex items-center gap-2 bg-green-100 p-3 text-green-700 rounded-md animate-pulse">
+          <div className="mx-6 mb-4 flex items-center gap-2 bg-green-100 dark:bg-green-900/20 p-3 text-green-700 dark:text-green-400 rounded-md animate-pulse">
             <CheckCircle className="h-5 w-5" />
             <span>{success}</span>
           </div>
         )}
 
         {error.message && error.field === '' && (
-          <div className="mx-6 mb-4 flex items-center gap-2 bg-red-100 p-3 text-red-700 rounded-md">
+          <div className="mx-6 mb-4 flex items-center gap-2 bg-red-100 dark:bg-red-900/20 p-3 text-red-700 dark:text-red-400 rounded-md">
             <AlertTriangle className="h-5 w-5" />
             <span>{error.message}</span>
           </div>
@@ -162,8 +142,8 @@ const SignUp = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="p-6 pt-0 space-y-4">
-            <div className="space-y-2 mb-4">
-              <label className="text-sm font-medium leading-none mb-2 block peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-900" htmlFor="name">
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none mb-2 block peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="name">
                 Name
               </label>
               <div className="relative">
@@ -181,7 +161,7 @@ const SignUp = () => {
                 />
               </div>
               {error.field === 'name' && (
-                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <p className="text-xs text-red-500 dark:text-red-400 mt-1 flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" /> {error.message}
                 </p>
               )}
@@ -207,7 +187,7 @@ const SignUp = () => {
                 />
               </div>
               {error.field === 'email' && (
-                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <p className="text-xs text-red-500 dark:text-red-400 mt-1 flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" /> {error.message}
                 </p>
               )}
@@ -223,57 +203,41 @@ const SignUp = () => {
                   className={getInputClasses('password')}
                   id="password"
                   required
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
                     if (error.field === 'password') setError({ field: '', message: '' });
                   }}
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex="-1"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
               {error.field === 'password' ? (
-                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <p className="text-xs text-red-500 dark:text-red-400 mt-1 flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" /> {error.message}
                 </p>
               ) : (
                 <div className="flex flex-col gap-1 mt-1">
-                  <p className="text-xs text-gray-500 flex items-center gap-1">
-                    <Info className="h-3 w-3" /> Password must be at least 6 characters long
-                  </p>
-                  <p className="text-xs text-gray-500 flex items-center gap-1">
-                    <Info className="h-3 w-3" /> Include at least one number and one special character
+                  <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                    <Info className="h-3 w-3" /> Password must be at least 8 characters long
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none mb-2 block peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="confirmPassword">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <input
-                  className={getInputClasses('confirmPassword')}
-                  id="confirmPassword"
-                  required
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    if (error.field === 'confirmPassword') setError({ field: '', message: '' });
-                  }}
-                />
-              </div>
-              {error.field === 'confirmPassword' && (
-                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                  <AlertTriangle className="h-3 w-3" /> {error.message}
-                </p>
-              )}
-            </div>
-
             <button
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-gray-300 bg-white hover:bg-gray-100 hover:text-gray-900 h-10 px-4 py-2 w-full gap-2"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white dark:ring-offset-gray-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 h-10 px-4 py-2 w-full gap-2"
               type="button"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -289,8 +253,8 @@ const SignUp = () => {
 
           <div className="items-center p-6 pt-0 flex flex-col space-y-4">
             <button
-              className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 w-full ${
-                loading ? 'bg-sky-400' : 'bg-[#2563EB] hover:bg-sky-600'
+              className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-white dark:ring-offset-gray-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 w-full ${
+                loading ? 'bg-sky-400 dark:bg-sky-700' : 'bg-[#2563EB] hover:bg-sky-600'
               } text-white`}
               type="submit"
               disabled={loading}
@@ -307,9 +271,9 @@ const SignUp = () => {
                 "Create account"
               )}
             </button>
-            <p className="text-center text-sm text-gray-400">
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
               Already have an account?{' '}
-              <Link to="/login" className="text-[#2563EB] hover:underline">
+              <Link to="/login" className="text-[#0EA5E9] hover:underline">
                 Login
               </Link>
             </p>

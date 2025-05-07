@@ -9,6 +9,7 @@ export function Forecast() {
   const [forecast, setForecast] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -108,7 +109,6 @@ export function Forecast() {
     return mostCommon;
   };
 
-  
   const convertTemperature = (fahrenheit) => {
     if (temperatureUnit === "celsius") {
       return Math.round((fahrenheit - 32) * 5 / 9);
@@ -116,12 +116,10 @@ export function Forecast() {
     return Math.round(fahrenheit);
   };
 
-  
   const getTemperatureSymbol = () => {
     return temperatureUnit === "celsius" ? "°C" : "°F";
   };
 
- 
   const getWeatherIcon = (condition) => {
     switch (condition) {
       case "Clear":
@@ -143,13 +141,26 @@ export function Forecast() {
     }
   };
 
+  const handleTabChange = (tab) => {
+    if (tab !== activeTab) {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setActiveTab(tab);
+        // Give a brief moment for the new tab to render before starting the fade-in animation
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 50);
+      }, 300); // Match this timing with the CSS transition duration
+    }
+  };
+
   return (
     <div className="w-full">
-      {/* Simple Tabs */}
-      <div className="grid w-full grid-cols-2 rounded-lg bg-gray-100 p-1">
+      {/* Reduced-size tabs */}
+      <div className="inline-flex rounded-lg bg-gray-100 p-1">
         <button
-          onClick={() => setActiveTab("forecast")}
-          className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+          onClick={() => handleTabChange("forecast")}
+          className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
             activeTab === "forecast"
               ? "bg-white shadow-sm"
               : "text-gray-500 hover:text-gray-900"
@@ -158,8 +169,8 @@ export function Forecast() {
           Forecast
         </button>
         <button
-          onClick={() => setActiveTab("details")}
-          className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+          onClick={() => handleTabChange("details")}
+          className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
             activeTab === "details"
               ? "bg-white shadow-sm"
               : "text-gray-500 hover:text-gray-900"
@@ -182,7 +193,11 @@ export function Forecast() {
         ) : (
           <>
             {activeTab === "forecast" && (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div 
+                className={`grid grid-cols-1 gap-4 sm:grid-cols-3 transition-opacity duration-300 ${
+                  isAnimating ? 'opacity-0' : 'opacity-100'
+                }`}
+              >
                 {forecast && forecast.map((day, index) => (
                   <ForecastCard
                     key={index}
@@ -192,48 +207,28 @@ export function Forecast() {
                     high={convertTemperature(day.high)}
                     low={convertTemperature(day.low)}
                     temperatureSymbol={getTemperatureSymbol()}
+                    index={index}
                   />
                 ))}
               </div>
             )}
             {activeTab === "details" && forecast && (
-              <div className="rounded-lg border border-gray-200 p-4">
+              <div 
+                className={`rounded-lg border border-gray-200 p-4 transition-opacity duration-300 ${
+                  isAnimating ? 'opacity-0' : 'opacity-100'
+                }`}
+              >
                 <h3 className="mb-3 font-medium">Detailed Weather Information</h3>
                 <div className="space-y-3">
                   {forecast.map((day, index) => (
-                    <div key={index} className="rounded-lg border border-gray-200 bg-white p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {getWeatherIcon(day.condition)}
-                          <div>
-                            <p className="font-medium">{day.day}</p>
-                            <p className="text-xs text-gray-500">{day.date}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{convertTemperature(day.high)}{getTemperatureSymbol()}</span>
-                          <span className="text-sm text-gray-500">{convertTemperature(day.low)}{getTemperatureSymbol()}</span>
-                        </div>
-                      </div>
-                      <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-gray-500">Humidity: </span>
-                          <span>{day.details.humidity}%</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Wind: </span>
-                          <span>{day.details.windSpeed} mph</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Condition: </span>
-                          <span className="capitalize">{day.details.description}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Pressure: </span>
-                          <span>{day.details.pressure} hPa</span>
-                        </div>
-                      </div>
-                    </div>
+                    <DetailCard 
+                      key={index}
+                      day={day}
+                      index={index}
+                      getWeatherIcon={getWeatherIcon}
+                      convertTemperature={convertTemperature}
+                      getTemperatureSymbol={getTemperatureSymbol}
+                    />
                   ))}
                 </div>
               </div>
@@ -245,9 +240,23 @@ export function Forecast() {
   );
 }
 
-function ForecastCard({ day, date, icon, high, low, temperatureSymbol }) {
+function ForecastCard({ day, date, icon, high, low, temperatureSymbol, index }) {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100 + index * 100); // Staggered animation
+    
+    return () => clearTimeout(timer);
+  }, [index]);
+
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div 
+      className={`rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-500 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      }`}
+    >
       <div className="p-4">
         <div className="flex flex-col items-center gap-1">
           <p className="font-medium">{day}</p>
@@ -257,6 +266,58 @@ function ForecastCard({ day, date, icon, high, low, temperatureSymbol }) {
             <span className="font-medium">{high}{temperatureSymbol}</span>
             <span className="text-sm text-gray-500">{low}{temperatureSymbol}</span>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DetailCard({ day, index, getWeatherIcon, convertTemperature, getTemperatureSymbol }) {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100 + index * 150); // Staggered animation
+    
+    return () => clearTimeout(timer);
+  }, [index]);
+
+  return (
+    <div 
+      className={`rounded-lg border border-gray-200 bg-white p-4 transition-all duration-500 ${
+        isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {getWeatherIcon(day.condition)}
+          <div>
+            <p className="font-medium">{day.day}</p>
+            <p className="text-xs text-gray-500">{day.date}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{convertTemperature(day.high)}{getTemperatureSymbol()}</span>
+          <span className="text-sm text-gray-500">{convertTemperature(day.low)}{getTemperatureSymbol()}</span>
+        </div>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+        <div>
+          <span className="text-gray-500">Humidity: </span>
+          <span>{day.details.humidity}%</span>
+        </div>
+        <div>
+          <span className="text-gray-500">Wind: </span>
+          <span>{day.details.windSpeed} mph</span>
+        </div>
+        <div>
+          <span className="text-gray-500">Condition: </span>
+          <span className="capitalize">{day.details.description}</span>
+        </div>
+        <div>
+          <span className="text-gray-500">Pressure: </span>
+          <span>{day.details.pressure} hPa</span>
         </div>
       </div>
     </div>

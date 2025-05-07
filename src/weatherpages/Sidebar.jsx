@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebaseConfig/firebaseConfig';
+import { auth, db } from '../firebaseConfig/firebaseConfig';
 import { signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import Search from "./Search";
 import WeatherCard from './WeatherCard';
 import { Forecast } from "./WeatherTabs";
@@ -14,6 +15,7 @@ import { useWeather } from "../WeatherContext/WeatherContext";
 export default function DashboardPage() {
   
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const navigate = useNavigate(); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
@@ -46,9 +48,24 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
+        
+        // Fetch user data from Firestore
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            setUserData(userDoc.data());
+            console.log("User data from Firestore:", userDoc.data());
+          } else {
+            console.log("No user document found in Firestore");
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
       } else {
         navigate('/login');
       }
@@ -69,7 +86,21 @@ export default function DashboardPage() {
   if (!user) {
     return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
   }
- 
+  
+  const getInitials = () => {
+    if (userData?.name) {
+      return userData.name.trim().charAt(0).toUpperCase();
+    } else if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
+  
+  const getFirstName = (fullName) => {
+    if (!fullName) return "User";
+    return fullName.split(" ")[0];
+  };
+  
   const renderMainContent = () => {
     switch(currentPage) {
       case 'favorites':
@@ -163,11 +194,13 @@ export default function DashboardPage() {
       </div>
       <div className="border-t border-gray-300 p-4">
         <div className="flex items-center gap-3">
-          <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full">
-            <img className="aspect-square h-full w-full" alt="User" src="/api/placeholder/40/40" />
-          </span>
+          <div className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-sky-500 text-white items-center justify-center">
+            <span className="text-lg font-medium">{getInitials()}</span>
+          </div>
           <div className="flex-1 overflow-hidden">
-            <p className="truncate text-sm font-medium">{user?.displayName || 'User'}</p>
+            <p className="truncate text-sm font-medium">
+              {userData?.name || user?.displayName || user?.email?.split('@')[0] || 'User'}
+            </p>
             <p className="truncate text-xs text-gray-500 dark:text-gray-400">{user?.email || 'user@example.com'}</p>
           </div>
           <div onClick={handleLogout}
@@ -181,6 +214,40 @@ export default function DashboardPage() {
     </div>
   );
 
+  // Render different header content based on the current page
+  const renderHeaderContent = () => {
+    switch(currentPage) {
+      case 'favorites':
+        return (
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-[25px] font-bold font-sans">Favorite Locations</h1>
+          </div>
+        );
+      case 'settings':
+        return (
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-[25px] font-bold">Settings</h1>
+          </div>
+        );
+      case 'chat':
+        return (
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-lg font-semibold">Chat with SkySage Assistant</h1>
+          </div>
+        );
+      case 'dashboard':
+      default:
+        return (
+          <Search 
+            onSearch={handleSearch} 
+            addToFavorites={addToFavorites}
+            isLocationFavorite={isLocationFavorite}
+            currentCity={searchCity}
+          />
+        );
+    }
+  };
+
   return (
     <div className={`flex h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}>
       {/* Desktop Sidebar - Hidden on mobile */}
@@ -188,39 +255,52 @@ export default function DashboardPage() {
         <SidebarContent />
       </div>
 
-      {/* Mobile Sidebar Overlay - Only visible when open */}
+      {/* Semi-transparent black overlay when sidebar is open - visible only on mobile */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden" onClick={toggleSidebar}>
-          <div className="absolute inset-0 bg-black bg-opacity-50" />
-        </div>
+        <div 
+          className="fixed inset-0 bg-black/85 bg-opacity-60 z-40 lg:hidden"
+          onClick={toggleSidebar}
+        />
       )}
-      
-      {/* Mobile Sidebar - Slides in from left */}
+
+      {/* Mobile Sidebar */}
       <div 
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:hidden ${darkMode ? 'bg-gray-900' : 'bg-white'} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed inset-y-0 left-0 z-50 w-80 transform transition-transform duration-300 ease-in-out lg:hidden ${darkMode ? 'bg-gray-900' : 'bg-white'} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <SidebarContent isMobile={true} />
       </div>
 
       {/* Main Content */}
       <div className={`flex flex-1 flex-col overflow-hidden ${darkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}>
-        <header className={`flex h-16 items-center justify-between border-b border-gray-300 px-4 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
-          {/* Hamburger menu for mobile */}
-          <button 
-            onClick={toggleSidebar}
-            className="mr-2 text-gray-600 dark:text-gray-300 lg:hidden"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          
-          <Search 
-            onSearch={handleSearch} 
-            addToFavorites={addToFavorites}
-            isLocationFavorite={isLocationFavorite}
-            currentCity={searchCity}
-          />
-        </header>
-        <main className="flex-1 overflow-auto p-4 md:p-6">
+        {/* Header - Now conditionally rendered based on currentPage */}
+        {currentPage !== 'chat' && (
+          <header className={`flex h-16 items-center justify-between border-b border-gray-300 px-4 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+            {/* Hamburger menu for mobile */}
+            <button 
+              onClick={toggleSidebar}
+              className="mr-2 text-gray-600 dark:text-gray-300 lg:hidden"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            
+            {/* Conditionally render search or page title */}
+            {renderHeaderContent()}
+          </header>
+        )}
+        
+        {/* If on chat page, we still need the mobile menu button */}
+        {currentPage === 'chat' && (
+          <div className="lg:hidden absolute top-4 left-4 z-10">
+            <button 
+              onClick={toggleSidebar}
+              className="text-gray-600 dark:text-gray-300 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-md"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+          </div>
+        )}
+        
+        <main className={`flex-1 overflow-auto ${currentPage === 'chat' ? 'p-0' : 'p-4 md:p-6'}`}>
           {renderMainContent()}
         </main>
       </div>

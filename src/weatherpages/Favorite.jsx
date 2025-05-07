@@ -47,7 +47,7 @@ export default function FavoriteCard() {
               <MapPin className="h-4 w-4 text-muted-foreground" />
               {location.city}
               {location.isDefault && (
-                <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">
+                <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700  dark:text-sky-300">
                   Default
                 </span>
               )}

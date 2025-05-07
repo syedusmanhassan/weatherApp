@@ -5,9 +5,7 @@ import { useWeather } from "../WeatherContext/WeatherContext"
 export default function WeatherCard() {
   const { 
     searchCity, 
-    temperatureUnit, 
-    isLocationFavorite, 
-    addToFavorites,
+    temperatureUnit,
     handleCityChange 
   } = useWeather();
   
@@ -17,7 +15,6 @@ export default function WeatherCard() {
   const [displayCity, setDisplayCity] = useState(searchCity);
 
   useEffect(() => {
-
     setDisplayCity(searchCity);
   }, [searchCity]);
 
@@ -55,28 +52,10 @@ export default function WeatherCard() {
       const newCity = e.target.value;
       setDisplayCity(newCity);
       
-     
       handleCityChange(newCity);
     }
   };
 
- 
-  const toggleFavorite = () => {
-    if (!weatherData) return;
-    
-    const location = {
-      city: weatherData.name,
-      country: weatherData.sys.country,
-      condition: weatherData.weather[0].main,
-      temperature: `${convertTemperature(weatherData.main.temp)}${getTemperatureSymbol()}`,
-      icon: getWeatherIconName(weatherData.weather[0].id),
-      removeExisting: isLocationFavorite(weatherData.name)
-    };
-    
-    addToFavorites(location);
-  };
-
- 
   const convertTemperature = (fahrenheit) => {
     if (temperatureUnit === "celsius") {
       return Math.round((fahrenheit - 32) * 5 / 9);
@@ -84,12 +63,10 @@ export default function WeatherCard() {
     return Math.round(fahrenheit);
   };
 
-  
   const getTemperatureSymbol = () => {
     return temperatureUnit === "celsius" ? "°C" : "°F";
   };
 
- 
   const getWeatherIconName = (weatherCode) => {
     if (weatherCode >= 200 && weatherCode < 300) return "lightning";
     if (weatherCode >= 300 && weatherCode < 600) return "rain";
@@ -99,10 +76,8 @@ export default function WeatherCard() {
     return "cloud";
   };
 
- 
   const getWeatherIcon = (weatherCode) => {
     if (!weatherCode) return <Cloud className="h-10 w-10 text-sky-500" />;
-    
     
     if (weatherCode >= 200 && weatherCode < 300) {
       return <CloudLightning className="h-10 w-10 text-purple-500" />; 
@@ -122,13 +97,11 @@ export default function WeatherCard() {
   const getWeatherAdvice = (data) => {
     if (!data) return "";
     
-   
     const temp = temperatureUnit === "celsius" 
       ? convertTemperature(data.main.temp)
       : data.main.temp;
     const weather = data.weather[0].main.toLowerCase();
     
-   
     const isHot = temperatureUnit === "celsius" ? temp > 29 : temp > 85;
     const isCold = temperatureUnit === "celsius" ? temp < 4 : temp < 40;
     const isIdeal = temperatureUnit === "celsius" 
@@ -152,10 +125,9 @@ export default function WeatherCard() {
     }
   };
 
-  
   const WeatherStat = ({ icon, label, value }) => {
     return (
-      <div className="flex flex-col items-center rounded-lg bg-gray-100/50 p-2 dark:bg-gray-700/50">
+      <div className="flex flex-col items-center rounded-lg bg-gray-100/50 p-2 ">
         {icon}
         <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>
         <span className="font-medium">{value}</span>
@@ -190,12 +162,11 @@ export default function WeatherCard() {
   }
 
   return (
-    <div className="rounded-lg border border-gray-300 bg-white w-full overflow-hidden dark:bg-gray-800 dark:border-gray-700">
-      
+    <div className="rounded-lg border border-gray-300 bg-white w-full overflow-hidden ">
       {/* Header section */}
       {weatherData && (
         <>
-          <div className="flex justify-between items-center p-6 pb-2">
+          <div className="p-6 pb-2">
             <div className="flex flex-col space-y-1.5">
               <h3 className="text-2xl font-semibold leading-none tracking-tight">
                 {weatherData.name}, {weatherData.sys.country}
@@ -204,17 +175,6 @@ export default function WeatherCard() {
                 {weatherData.weather[0].description}
               </p>
             </div>
-            {/* Add favorite button */}
-            <button 
-              onClick={toggleFavorite}
-              className={`p-2 rounded-full ${
-                isLocationFavorite(weatherData.name)
-                  ? "bg-yellow-100 text-yellow-600"
-                  : "bg-gray-100 text-gray-600"
-              }`}
-            >
-              {isLocationFavorite(weatherData.name) ? "★" : "☆"}
-            </button>
           </div>
           
           {/* Content section */}
@@ -226,7 +186,7 @@ export default function WeatherCard() {
               </div>
             </div>
             
-            <div className="mt-4 rounded-lg bg-sky-50 p-3 dark:bg-sky-900/30">
+            <div className="mt-4 rounded-lg bg-sky-50 p-3 ">
               <p className="text-sm">
                 <span className="font-medium">Weather advice:</span> {getWeatherAdvice(weatherData)}
               </p>

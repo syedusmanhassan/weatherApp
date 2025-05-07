@@ -3,10 +3,9 @@ import { Send } from 'lucide-react';
 import { useWeather } from '../WeatherContext/WeatherContext';
 
 export default function ChatPage() {
-
-    const{aiTone} = useWeather();
-    
-    console.log("aiTone prop:", aiTone);
+  const { aiTone } = useWeather();
+  
+  console.log("aiTone prop:", aiTone);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -20,12 +19,9 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef(null);
   
- 
   const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
   
-  
   const getSuggestedQuestions = () => {
-  
     const defaultQuestions = [
       "What should I wear today?",
       "Is it a good day for a picnic?",
@@ -33,7 +29,6 @@ export default function ChatPage() {
       "How's the weekend weather looking?"
     ];
     
-  
     switch(aiTone) {
       case 'Professional':
         return [
@@ -62,17 +57,13 @@ export default function ChatPage() {
     }
   };
   
- 
   const suggestedQuestions = getSuggestedQuestions();
   
-
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   
-
   useEffect(() => {
-   
     if (messages.length === 1 && messages[0].id === 1) {
       const welcomeMessages = {
         'Professional': "Good day. I'm your SkySage weather assistant. How may I help you with weather information today?",
@@ -90,13 +81,11 @@ export default function ChatPage() {
     }
   }, [aiTone]);
   
-  
   const getGeminiResponse = async (userPrompt) => {
     try {
       setIsLoading(true);
       
       const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-      
       
       const toneInstructions = {
         'Professional': "Use professional language. Be formal, precise and thorough in your responses. Use industry-appropriate terminology when relevant. Maintain a respectful and business-like tone.",
@@ -105,7 +94,6 @@ export default function ChatPage() {
         'Casual': "Use a relaxed, everyday conversational style. Be helpful and informative while maintaining a casual tone. Feel free to use contractions and common expressions."
       };
       
-    
       const toneInstruction = toneInstructions[aiTone] || toneInstructions['Casual'];
       
       const requestBody = {
@@ -144,7 +132,6 @@ Here's the user query: ${userPrompt}`
       
       const data = await response.json();
       
-      
       const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || 
                           "Sorry, I couldn't generate a response. Please try again.";
                           
@@ -157,11 +144,9 @@ Here's the user query: ${userPrompt}`
     }
   };
   
- 
   const handleSendMessage = async (text) => {
     if (!text.trim()) return;
     
-   
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
@@ -169,7 +154,6 @@ Here's the user query: ${userPrompt}`
     const formattedHours = hours % 12 || 12;
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
     const timestamp = `${formattedHours}:${formattedMinutes} ${ampm}`;
-    
     
     const newMessage = {
       id: messages.length + 1,
@@ -181,10 +165,8 @@ Here's the user query: ${userPrompt}`
     setMessages(prev => [...prev, newMessage]);
     setInputValue('');
     
-    
     const geminiResponse = await getGeminiResponse(text);
     
-   
     const assistantResponse = {
       id: messages.length + 2,
       sender: 'assistant',
@@ -195,16 +177,13 @@ Here's the user query: ${userPrompt}`
     setMessages(prev => [...prev, assistantResponse]);
   };
   
-
   const handleSuggestionClick = (question) => {
     handleSendMessage(question);
   };
   
-  
   const handleSubmit = () => {
     handleSendMessage(inputValue);
   };
-  
   
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -213,11 +192,9 @@ Here's the user query: ${userPrompt}`
     }
   };
   
- 
   const getChatContainerClass = () => {
     const baseClass = "flex flex-1 flex-col h-screen";
     
-   
     switch(aiTone) {
       case 'Professional':
         return `${baseClass} bg-gray-50`;
@@ -247,7 +224,7 @@ Here's the user query: ${userPrompt}`
             {suggestedQuestions.map((question, index) => (
               <button
                 key={index}
-                className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+                className="border rounded-md border-gray-200 bg-white px-4 py-2 text-sm hover:bg-gray-50"
                 onClick={() => handleSuggestionClick(question)}
               >
                 {question}
@@ -270,11 +247,12 @@ Here's the user query: ${userPrompt}`
                 }`}>
                   {message.sender === 'assistant' && (
                     <span className="relative flex shrink-0 overflow-hidden h-8 w-8">
-                      <img
-                        className="aspect-square h-full w-full"
-                        alt="SkySage"
-                        src="/api/placeholder/32/32"
-                      />
+                      {/* Gemini logo SVG */}
+                      <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
+                        <path d="M16 2L2 9V23L16 30L30 23V9L16 2Z" fill="#8E75D2" />
+                        <path d="M16 6L6 12V22L16 28L26 22V12L16 6Z" fill="#FFFFFF" />
+                        <path d="M16 10L10 14V20L16 24L22 20V14L16 10Z" fill="#8E75D2" />
+                      </svg>
                     </span>
                   )}
                   <div className="flex-1">
@@ -287,15 +265,22 @@ Here's the user query: ${userPrompt}`
             {isLoading && (
               <div className="flex justify-start">
                 <div className="flex max-w-[80%] items-start gap-3 rounded-lg p-3 bg-gray-100">
-                  <span className="relative flex shrink-0 overflow-hidden h-8 w-8">
-                    <img
-                      className="aspect-square h-full w-full"
-                      alt="SkySage"
-                      src="/api/placeholder/32/32"
-                    />
+                  <span className="relative flex shrink-0 overflow-hidden h-8 w-8 animate-pulse">
+                    {/* Gemini logo SVG */}
+                    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
+                      <path d="M16 2L2 9V23L16 30L30 23V9L16 2Z" fill="#8E75D2" />
+                      <path d="M16 6L6 12V22L16 28L26 22V12L16 6Z" fill="#FFFFFF" />
+                      <path d="M16 10L10 14V20L16 24L22 20V14L16 10Z" fill="#8E75D2" />
+                    </svg>
                   </span>
                   <div className="flex-1">
-                    <p className="whitespace-pre-wrap">Thinking...</p>
+                    <div className="flex items-center">
+                      <div className="flex space-x-1">
+                        <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -305,26 +290,26 @@ Here's the user query: ${userPrompt}`
         </div>
       </div>
       
-      {/* Message input fixed at bottom */}
-      <div className=" border-gray-200 bg-white p-4">
-        <div className="mx-auto flex max-w-3xl items-center">
+      {/* Message input fixed at bottom - REDESIGNED */}
+      <div className="border-t border-gray-300 bg-white p-[11.25px]">
+        <div className="mx-auto flex max-w-3xl items-center gap-2">
           <div className="relative flex-1">
             <input
-              className="w-full rounded-full border border-gray-200 py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 bg-white py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
               placeholder={aiTone === 'Concise' ? "Ask question..." : "Ask about the weather..."}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={isLoading}
             />
-            <button
-              onClick={handleSubmit}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-blue-500 hover:text-blue-600"
-              disabled={!inputValue.trim() || isLoading}
-            >
-              <Send className="h-5 w-5" />
-            </button>
           </div>
+          <button
+            onClick={handleSubmit}
+            className="rounded-lg bg-blue-500 p-3 text-white hover:bg-blue-600 disabled:opacity-50"
+            disabled={!inputValue.trim() || isLoading}
+          >
+            <Send className="h-5 w-5" />
+          </button>
         </div>
       </div>
     </div>

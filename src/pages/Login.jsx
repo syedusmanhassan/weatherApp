@@ -97,7 +97,6 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Check if account is locked
     if (isLocked) {
       return;
     }
@@ -122,24 +121,21 @@ const Login = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setSuccess('Login successful! Redirecting to dashboard...');
-      // Reset login attempts on successful login
+
       setLoginAttempts(0);
-      
-      // Redirect after showing success message briefly
+  
       setTimeout(() => {
         navigate("/dashboard");
       }, 1000);
     } catch (error) {
       console.error("Login error", error);
       
-      // Increment login attempts
       const newAttempts = loginAttempts + 1;
       setLoginAttempts(newAttempts);
       
-      // Lock account after 5 failed attempts
       if (newAttempts >= 5) {
         setIsLocked(true);
-        setLockTimer(30); // Lock for 30 seconds
+        setLockTimer(30); 
         setError({ 
           field: '', 
           message: 'Too many failed login attempts. Your account is temporarily locked. Please try again later.' 
@@ -190,7 +186,7 @@ const Login = () => {
       {/* Logo */}
       <a href="/" className="mb-8 flex items-center gap-2">
         <CloudSun className="h-6 w-6 text-sky-500" />
-        <span className="text-xl font-bold">SkySage</span>
+        <span className="text-xl font-bold dark:text-white">SkySage</span>
       </a>
 
       {/* Card */}
@@ -288,7 +284,7 @@ const Login = () => {
                   type="button"
                   onClick={handleResetPassword}
                   disabled={loading || isLocked}
-                  className="text-xs text-sky-500 hover:underline focus:outline-none"
+                  className="text-xs text-[#0EA5E9] hover:underline focus:outline-none"
                 >
                   Forgot password?
                 </button>
@@ -399,7 +395,7 @@ const Login = () => {
             </button>
             <p className="text-center text-sm text-gray-500 dark:text-gray-400">
               Don't have an account?{' '}
-              <Link to="/signup" className="text-[#2563EB] hover:underline">
+              <Link to="/signup" className="text-[#0EA5E9] hover:underline">
                 Sign up
               </Link>
             </p>

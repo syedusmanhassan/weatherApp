@@ -150,7 +150,7 @@ export default function DashboardPage() {
   
   const SidebarContent = ({ isMobile = false }) => (
     <div className="flex flex-col h-full">
-      <div className="flex h-16 items-center border-b border-gray-300 px-4">
+      <div className={`flex h-16 items-center border-b ${darkMode? "border-[#1e293b]" :"border-gray-300"} px-4`}>
         <a className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavigation('dashboard')}>
           <CloudSun className="h-6 w-6 text-sky-500" />
           <span className="text-xl font-bold">SkySage</span>
@@ -192,7 +192,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-      <div className="border-t border-gray-300 p-4">
+      <div className={`border-t ${darkMode? "border-[#1e293b]" :"border-gray-300"} p-4`}>
         <div className="flex items-center gap-3">
           <div className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-sky-500 text-white items-center justify-center">
             <span className="text-lg font-medium">{getInitials()}</span>
@@ -251,7 +251,7 @@ export default function DashboardPage() {
   return (
     <div className={`flex h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}>
       {/* Desktop Sidebar - Hidden on mobile */}
-      <div className={`hidden border-r border-gray-300 ${darkMode ? 'bg-gray-900' : 'bg-white'} lg:block lg:w-64`}>
+      <div className={`hidden border-r ${darkMode ?"border-[#1e293b]" :"border-gray-300" } ${darkMode ? 'bg-gray-900' : 'bg-white'} lg:block lg:w-64`}>
         <SidebarContent />
       </div>
 
@@ -274,7 +274,7 @@ export default function DashboardPage() {
       <div className={`flex flex-1 flex-col overflow-hidden ${darkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}>
         {/* Header - Now conditionally rendered based on currentPage */}
         {currentPage !== 'chat' && (
-          <header className={`flex h-16 items-center justify-between border-b border-gray-300 px-4 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+          <header className={`flex h-16 items-center justify-between border-b  px-4 ${darkMode ? 'bg-gray-900 border-[#1e293b]' : 'bg-white border-gray-300'}`}>
             {/* Hamburger menu for mobile */}
             <button 
               onClick={toggleSidebar}

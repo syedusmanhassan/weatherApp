@@ -8,6 +8,7 @@ import SignUp from './pages/Signup';
 import { ProtectedRoute } from './protectedRoute/protectedRoute';
 import Sidebar from './weatherpages/Sidebar';
 import { WeatherProvider } from './WeatherContext/WeatherContext';
+import LandingPage from './pages/LandingPage';
 
 
 function App() {
@@ -32,9 +33,10 @@ function App() {
 
     <Router>
       <Routes>
+        <Route path='/' element={user? <Navigate to="/dashboard"/> : <LandingPage/>}/>
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
         <Route path="/signup" element={user ? <Navigate to="/dashboard" /> : <SignUp />} />
-        <Route path="/" element={user ? <Navigate to="/dashboard" /> : <SignUp />} />
+        {/* <Route path="/" element={user ? <Navigate to="/dashboard" /> : <SignUp />} /> */}
         
         <Route 
           path="/dashboard" 

@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 export const WeatherContext = createContext();
 
-
 export const useWeather = () => {
   const context = useContext(WeatherContext);
   if (!context) {
@@ -36,34 +35,27 @@ export const WeatherProvider = ({ children }) => {
     setSearchCity(city);
   };
 
-
   const navigateTo = (page) => {
     setCurrentPage(page);
   };
 
-
   const addToFavorites = (location) => {
-   
     if (location.removeExisting) {
-     
       const index = favorites.findIndex(fav => 
         fav.city.toLowerCase() === location.city.toLowerCase()
       );
       
       if (index !== -1) {
-      
         removeFromFavorites(index);
         return true;
       }
       return false;
     } else {
-    
       const exists = favorites.some(fav => 
         fav.city.toLowerCase() === location.city.toLowerCase()
       );
       
       if (!exists) {
-   
         const isDefault = favorites.length === 0;
         
         const newFavorite = {
@@ -78,14 +70,12 @@ export const WeatherProvider = ({ children }) => {
     }
   };
 
- 
   const removeFromFavorites = (index) => {
     const updatedFavorites = [...favorites];
     const wasDefault = updatedFavorites[index].isDefault;
     
     updatedFavorites.splice(index, 1);
     
-
     if (wasDefault && updatedFavorites.length > 0) {
       updatedFavorites[0].isDefault = true;
     }
@@ -93,7 +83,6 @@ export const WeatherProvider = ({ children }) => {
     setFavorites(updatedFavorites);
   };
 
- 
   const setDefaultLocation = (index) => {
     const updatedFavorites = favorites.map((location, i) => ({
       ...location,
@@ -102,14 +91,12 @@ export const WeatherProvider = ({ children }) => {
     setFavorites(updatedFavorites);
   };
 
-  
   const isLocationFavorite = (cityName) => {
     return favorites.some(fav => 
       fav.city.toLowerCase() === cityName.toLowerCase()
     );
   };
   
- 
   const handleCityChange = (city) => {
     setSearchCity(city);
     if (currentPage === 'favorites') {
@@ -117,18 +104,40 @@ export const WeatherProvider = ({ children }) => {
     }
   };
 
-
   const updateSettings = (updates) => {
-    if ('temperatureUnit' in updates) setTemperatureUnit(updates.temperatureUnit);
-    if ('darkMode' in updates) setDarkMode(updates.darkMode);
-    if ('defaultLocation' in updates) setDefaultLocation(updates.defaultLocation);
-    if ('notifications' in updates) setNotifications(updates.notifications);
-    if ('aiTone' in updates) setAiTone(updates.aiTone);
+    if ('temperatureUnit' in updates) {
+      setTemperatureUnit(updates.temperatureUnit);
+      localStorage.setItem('temperatureUnit', updates.temperatureUnit);
+    }
+    if ('darkMode' in updates) {
+      setDarkMode(updates.darkMode);
+      localStorage.setItem('darkMode', updates.darkMode);
+      
+      // Apply dark mode to document body
+      if (updates.darkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    if ('defaultLocation' in updates && typeof updates.defaultLocation === 'string') {
+      // Handle default location change
+      if (updates.defaultLocation) {
+        const [city, country] = updates.defaultLocation.split(', ');
+        handleCityChange(city);
+      }
+    }
+    if ('notifications' in updates) {
+      setNotifications(updates.notifications);
+      localStorage.setItem('notifications', updates.notifications);
+    }
+    if ('aiTone' in updates) {
+      setAiTone(updates.aiTone);
+      localStorage.setItem('aiTone', updates.aiTone);
+    }
   };
 
- 
   useEffect(() => {
-   
     const savedTemperatureUnit = localStorage.getItem('temperatureUnit');
     const savedDarkMode = localStorage.getItem('darkMode');
     const savedNotifications = localStorage.getItem('notifications');
@@ -136,12 +145,26 @@ export const WeatherProvider = ({ children }) => {
     const savedFavorites = localStorage.getItem('weatherFavorites');
     
     if (savedTemperatureUnit) setTemperatureUnit(savedTemperatureUnit);
-    if (savedDarkMode) setDarkMode(savedDarkMode === 'true');
+    if (savedDarkMode) {
+      const isDarkMode = savedDarkMode === 'true';
+      setDarkMode(isDarkMode);
+      
+      // Apply dark mode to document on initial load
+      if (isDarkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
     if (savedNotifications) setNotifications(savedNotifications !== 'false');
     if (savedAiTone) setAiTone(savedAiTone);
     if (savedFavorites) setFavorites(JSON.parse(savedFavorites));
   }, []);
 
+  // Save favorites to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('weatherFavorites', JSON.stringify(favorites));
+  }, [favorites]);
 
   const contextValue = {
     searchCity,
@@ -152,7 +175,6 @@ export const WeatherProvider = ({ children }) => {
     aiTone,
     currentPage,
     
-
     setSearchCity,
     handleSearch,
     navigateTo,

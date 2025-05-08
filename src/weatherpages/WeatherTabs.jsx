@@ -3,7 +3,7 @@ import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, CloudFog, Loader } fr
 import { useWeather } from "../WeatherContext/WeatherContext";
 
 export function Forecast() {
-  const {searchCity, temperatureUnit} = useWeather();
+  const { searchCity, temperatureUnit, darkMode } = useWeather();
 
   const [activeTab, setActiveTab] = useState("forecast");
   const [forecast, setForecast] = useState(null);
@@ -156,14 +156,18 @@ export function Forecast() {
 
   return (
     <div className="w-full">
-      {/* Reduced-size tabs */}
-      <div className="inline-flex rounded-lg bg-gray-100 p-1">
+      {/* Reduced-size tabs with dark mode support */}
+      <div className={`inline-flex rounded-lg p-1 ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
         <button
           onClick={() => handleTabChange("forecast")}
           className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
             activeTab === "forecast"
-              ? "bg-white shadow-sm"
-              : "text-gray-500 hover:text-gray-900"
+              ? darkMode 
+                ? "bg-gray-900 text-white shadow-sm" 
+                : "bg-white shadow-sm"
+              : darkMode
+                ? "text-gray-300 hover:text-white"
+                : "text-gray-500 hover:text-gray-900"
           }`}
         >
           Forecast
@@ -172,8 +176,12 @@ export function Forecast() {
           onClick={() => handleTabChange("details")}
           className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
             activeTab === "details"
-              ? "bg-white shadow-sm"
-              : "text-gray-500 hover:text-gray-900"
+              ? darkMode 
+                ? "bg-gray-900 text-white shadow-sm" 
+                : "bg-white shadow-sm"
+              : darkMode
+                ? "text-gray-300 hover:text-white"
+                : "text-gray-500 hover:text-gray-900"
           }`}
         >
           Details
@@ -187,7 +195,11 @@ export function Forecast() {
             <Loader className="h-8 w-8 animate-spin text-sky-500" />
           </div>
         ) : error ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-red-600">
+          <div className={`rounded-lg border p-4 text-center ${
+            darkMode 
+              ? "border-red-800 bg-red-900/50 text-red-300" 
+              : "border-red-200 bg-red-50 text-red-600"
+          }`}>
             {error}
           </div>
         ) : (
@@ -208,14 +220,19 @@ export function Forecast() {
                     low={convertTemperature(day.low)}
                     temperatureSymbol={getTemperatureSymbol()}
                     index={index}
+                    darkMode={darkMode}
                   />
                 ))}
               </div>
             )}
             {activeTab === "details" && forecast && (
               <div 
-                className={`rounded-lg border border-gray-200 p-4 transition-opacity duration-300 ${
+                className={`rounded-lg border p-4 transition-opacity duration-300 ${
                   isAnimating ? 'opacity-0' : 'opacity-100'
+                } ${
+                  darkMode 
+                    ? 'border-gray-700 bg-gray-800 text-white' 
+                    : 'border-gray-200 bg-white'
                 }`}
               >
                 <h3 className="mb-3 font-medium">Detailed Weather Information</h3>
@@ -228,6 +245,7 @@ export function Forecast() {
                       getWeatherIcon={getWeatherIcon}
                       convertTemperature={convertTemperature}
                       getTemperatureSymbol={getTemperatureSymbol}
+                      darkMode={darkMode}
                     />
                   ))}
                 </div>
@@ -240,7 +258,7 @@ export function Forecast() {
   );
 }
 
-function ForecastCard({ day, date, icon, high, low, temperatureSymbol, index }) {
+function ForecastCard({ day, date, icon, high, low, temperatureSymbol, index, darkMode }) {
   const [isVisible, setIsVisible] = useState(false);
   
   useEffect(() => {
@@ -253,18 +271,22 @@ function ForecastCard({ day, date, icon, high, low, temperatureSymbol, index }) 
 
   return (
     <div 
-      className={`rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-500 ${
+      className={`rounded-lg border shadow-sm transition-all duration-500 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      } ${
+        darkMode 
+          ? 'border-gray-700 bg-[#111111] text-white' 
+          : 'border-gray-200 bg-white'
       }`}
     >
       <div className="p-4">
         <div className="flex flex-col items-center gap-1">
           <p className="font-medium">{day}</p>
-          <p className="text-xs text-gray-500">{date}</p>
+          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{date}</p>
           {icon}
           <div className="mt-1 flex items-center gap-2">
             <span className="font-medium">{high}{temperatureSymbol}</span>
-            <span className="text-sm text-gray-500">{low}{temperatureSymbol}</span>
+            <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{low}{temperatureSymbol}</span>
           </div>
         </div>
       </div>
@@ -272,7 +294,7 @@ function ForecastCard({ day, date, icon, high, low, temperatureSymbol, index }) 
   );
 }
 
-function DetailCard({ day, index, getWeatherIcon, convertTemperature, getTemperatureSymbol }) {
+function DetailCard({ day, index, getWeatherIcon, convertTemperature, getTemperatureSymbol, darkMode }) {
   const [isVisible, setIsVisible] = useState(false);
   
   useEffect(() => {
@@ -285,8 +307,12 @@ function DetailCard({ day, index, getWeatherIcon, convertTemperature, getTempera
 
   return (
     <div 
-      className={`rounded-lg border border-gray-200 bg-white p-4 transition-all duration-500 ${
+      className={`rounded-lg border p-4 transition-all duration-500 ${
         isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+      } ${
+        darkMode 
+          ? 'border-gray-700 bg-[#111111] text-white' 
+          : 'border-gray-200 bg-white'
       }`}
     >
       <div className="flex items-center justify-between">
@@ -294,29 +320,29 @@ function DetailCard({ day, index, getWeatherIcon, convertTemperature, getTempera
           {getWeatherIcon(day.condition)}
           <div>
             <p className="font-medium">{day.day}</p>
-            <p className="text-xs text-gray-500">{day.date}</p>
+            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{day.date}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <span className="font-medium">{convertTemperature(day.high)}{getTemperatureSymbol()}</span>
-          <span className="text-sm text-gray-500">{convertTemperature(day.low)}{getTemperatureSymbol()}</span>
+          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{convertTemperature(day.low)}{getTemperatureSymbol()}</span>
         </div>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
         <div>
-          <span className="text-gray-500">Humidity: </span>
+          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Humidity: </span>
           <span>{day.details.humidity}%</span>
         </div>
         <div>
-          <span className="text-gray-500">Wind: </span>
+          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Wind: </span>
           <span>{day.details.windSpeed} mph</span>
         </div>
         <div>
-          <span className="text-gray-500">Condition: </span>
+          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Condition: </span>
           <span className="capitalize">{day.details.description}</span>
         </div>
         <div>
-          <span className="text-gray-500">Pressure: </span>
+          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Pressure: </span>
           <span>{day.details.pressure} hPa</span>
         </div>
       </div>

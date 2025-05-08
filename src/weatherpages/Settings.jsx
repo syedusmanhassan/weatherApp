@@ -74,7 +74,7 @@ export function SettingsPage({ onUpdateSettings }) {
   };
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden relative">
+    <div className={`flex flex-1 flex-col overflow-hidden relative ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       
       {showToast && (
         <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 shadow-md border border-green-200 animate-in fade-in slide-in-from-top-2 duration-300">
@@ -93,12 +93,12 @@ export function SettingsPage({ onUpdateSettings }) {
         </div>
       )}
       
-      <main className="flex-1 overflow-auto p-4 md:p-6">
+      <main className={`flex-1 overflow-auto p-4 md:p-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="mx-auto max-w-3xl space-y-6">
-          <div className="rounded-lg border bg-white border-gray-300">
+          <div className={`rounded-lg border ${darkMode ? ' bg-[#000000] border-gray-700 text-white' : 'bg-white border-gray-300'}`}>
             <div className="flex flex-col space-y-1.5 p-6">
               <h3 className="text-2xl font-semibold leading-none tracking-tight">Display Preferences</h3>
-              <p className="text-sm text-gray-500">Customize how weather information is displayed</p>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Customize how weather information is displayed</p>
             </div>
             
             <div className="p-6 pt-0 space-y-4">
@@ -154,7 +154,7 @@ export function SettingsPage({ onUpdateSettings }) {
                   <label className="text-sm font-medium leading-none" htmlFor="dark-mode">
                     Dark Mode
                   </label>
-                  <p className="text-sm text-gray-500">
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     Switch between light and dark theme
                   </p>
                 </div>
@@ -179,10 +179,10 @@ export function SettingsPage({ onUpdateSettings }) {
             </div>
           </div>
           
-          <div className="rounded-lg border border-gray-300 bg-white">
+          <div className={`rounded-lg border ${darkMode ? 'bg-[#000000] border-gray-700 text-white' : 'bg-white border-gray-300'}`}>
             <div className="flex flex-col space-y-1.5 p-6">
               <h3 className="text-2xl font-semibold leading-none tracking-tight">Location Settings</h3>
-              <p className="text-sm text-gray-500">Manage your preferred location settings</p>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Manage your preferred location settings</p>
             </div>
             
             <div className="p-6 pt-0 space-y-4">
@@ -194,7 +194,11 @@ export function SettingsPage({ onUpdateSettings }) {
                   type="button"
                   role="combobox"
                   aria-expanded={locationDropdownOpen}
-                  className="flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+                  className={`flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm ${
+                    darkMode 
+                      ? 'border-gray-600 bg-gray-700 text-white' 
+                      : 'border-gray-300 bg-white'
+                  }`}
                   id="default-location"
                   onClick={() => setLocationDropdownOpen(!locationDropdownOpen)}
                 >
@@ -203,12 +207,22 @@ export function SettingsPage({ onUpdateSettings }) {
                 </button>
                 
                 {locationDropdownOpen && (
-                  <div className="absolute w-full z-10 mt-1 max-h-60 overflow-auto rounded-md border border-gray-300 bg-white p-1">
+                  <div className={`absolute w-full z-10 mt-1 max-h-60 overflow-auto rounded-md border p-1 ${
+                    darkMode 
+                      ? 'border-gray-600 bg-gray-700 text-white' 
+                      : 'border-gray-300 bg-white'
+                  }`}>
                     {locations.map((location) => (
                       <div
                         key={location}
-                        className={`relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-gray-100 hover:text-gray-900 ${
-                          location === tempSettings.defaultLocation ? "bg-gray-100" : ""
+                        className={`relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none ${
+                          darkMode
+                            ? location === tempSettings.defaultLocation 
+                              ? 'bg-gray-600' 
+                              : 'hover:bg-gray-600'
+                            : location === tempSettings.defaultLocation 
+                              ? 'bg-gray-100' 
+                              : 'hover:bg-gray-100 hover:text-gray-900'
                         }`}
                         onClick={() => handleDefaultLocationChange(location)}
                       >
@@ -224,7 +238,7 @@ export function SettingsPage({ onUpdateSettings }) {
                   <label className="text-sm font-medium leading-none" htmlFor="notifications">
                     Weather Notifications
                   </label>
-                  <p className="text-sm text-gray-500">
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     Receive alerts for severe weather conditions
                   </p>
                 </div>
@@ -249,10 +263,10 @@ export function SettingsPage({ onUpdateSettings }) {
             </div>
           </div>
           
-          <div className="rounded-lg border bg-white border-gray-300">
+          <div className={`rounded-lg border ${darkMode ? 'bg-[#000000] border-gray-700 text-white' : 'bg-white border-gray-300'}`}>
             <div className="flex flex-col space-y-1.5 p-6">
               <h3 className="text-2xl font-semibold leading-none tracking-tight">AI Assistant Preferences</h3>
-              <p className="text-sm text-gray-500">Customize how the AI assistant communicates with you</p>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Customize how the AI assistant communicates with you</p>
             </div>
             
             <div className="p-6 pt-0 space-y-4">
@@ -264,7 +278,11 @@ export function SettingsPage({ onUpdateSettings }) {
                   type="button"
                   role="combobox"
                   aria-expanded={aiToneDropdownOpen}
-                  className="flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+                  className={`flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm ${
+                    darkMode 
+                      ? 'border-gray-600 bg-gray-700 text-white' 
+                      : 'border-gray-300 bg-white'
+                  }`}
                   id="ai-tone"
                   onClick={() => setAiToneDropdownOpen(!aiToneDropdownOpen)}
                 >
@@ -273,12 +291,22 @@ export function SettingsPage({ onUpdateSettings }) {
                 </button>
                 
                 {aiToneDropdownOpen && (
-                  <div className="absolute w-full z-10 mt-1 max-h-60 overflow-auto rounded-md border bg-white p-1">
+                  <div className={`absolute w-full z-10 mt-1 max-h-60 overflow-auto rounded-md border p-1 ${
+                    darkMode 
+                      ? 'border-gray-600 bg-gray-700 text-white' 
+                      : 'border-gray-300 bg-white'
+                  }`}>
                     {tones.map((tone) => (
                       <div
                         key={tone}
-                        className={`relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-gray-100 hover:text-gray-900 ${
-                          tone === tempSettings.aiTone ? "bg-gray-100" : ""
+                        className={`relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none ${
+                          darkMode
+                            ? tone === tempSettings.aiTone 
+                              ? 'bg-gray-600' 
+                              : 'hover:bg-gray-600'
+                            : tone === tempSettings.aiTone 
+                              ? 'bg-gray-100' 
+                              : 'hover:bg-gray-100 hover:text-gray-900'
                         }`}
                         onClick={() => handleAIToneChange(tone)}
                       >

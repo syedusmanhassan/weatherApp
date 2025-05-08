@@ -3,7 +3,7 @@ import { Send } from 'lucide-react';
 import { useWeather } from '../WeatherContext/WeatherContext';
 
 export default function ChatPage() {
-  const { aiTone } = useWeather();
+  const { aiTone, darkMode } = useWeather();
   
   console.log("aiTone prop:", aiTone);
   const [messages, setMessages] = useState([
@@ -193,18 +193,47 @@ Here's the user query: ${userPrompt}`
   };
   
   const getChatContainerClass = () => {
-    const baseClass = "flex flex-1 flex-col h-screen";
+    // Base class with dark mode
+    const baseClass = `flex flex-1 flex-col h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`;
     
-    switch(aiTone) {
-      case 'Professional':
-        return `${baseClass} bg-gray-50`;
-      case 'Friendly':
-        return `${baseClass} bg-blue-50`;
-      case 'Concise':
-        return `${baseClass} bg-gray-100`;
-      case 'Casual':
-      default:
-        return baseClass;
+    // Apply tone-specific styling while respecting dark mode
+    if (darkMode) {
+      return baseClass; // In dark mode, we keep a consistent dark background regardless of tone
+    } else {
+      // Light mode with tone-specific backgrounds
+      switch(aiTone) {
+        case 'Professional':
+          return `${baseClass} bg-gray-50`;
+        case 'Friendly':
+          return `${baseClass} bg-blue-50`;
+        case 'Concise':
+          return `${baseClass} bg-gray-100`;
+        case 'Casual':
+        default:
+          return baseClass;
+      }
+    }
+  };
+  
+  // Get message background color based on sender and AI tone
+  const getMessageBgClass = (sender) => {
+    if (sender === 'user') {
+      return 'bg-blue-500 text-white';
+    } else {
+      if (darkMode) {
+        // Dark mode assistant messages
+        return 'bg-gray-800 text-white';
+      } else {
+        // Light mode assistant messages with tone-specific colors
+        switch(aiTone) {
+          case 'Professional':
+            return 'bg-gray-200';
+          case 'Friendly':
+            return 'bg-blue-100';
+          default:
+            return 'bg-gray-100';
+        }
+      }
     }
   };
   
@@ -214,7 +243,11 @@ Here's the user query: ${userPrompt}`
         <div className="mx-auto w-full max-w-3xl">
           {/* AI Tone indicator */}
           <div className="text-center mb-4">
-            <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800">
+            <span className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium ${
+              darkMode 
+                ? 'bg-gray-800 text-gray-200' 
+                : 'bg-gray-100 text-gray-800'
+            }`}>
               AI Assistant: {aiTone} Mode
             </span>
           </div>
@@ -224,7 +257,11 @@ Here's the user query: ${userPrompt}`
             {suggestedQuestions.map((question, index) => (
               <button
                 key={index}
-                className="border rounded-md border-gray-200 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+                className={`border rounded-md px-4 py-2 text-sm ${
+                  darkMode 
+                    ? 'border-gray-700 bg-gray-800 text-gray-200 hover:bg-gray-700' 
+                    : 'border-gray-200 bg-white hover:bg-gray-50'
+                }`}
                 onClick={() => handleSuggestionClick(question)}
               >
                 {question}
@@ -236,15 +273,7 @@ Here's the user query: ${userPrompt}`
           <div className="space-y-4 pb-20">
             {messages.map((message) => (
               <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex max-w-[80%] items-start gap-3 rounded-lg p-3 ${
-                  message.sender === 'user' 
-                    ? 'bg-blue-500 text-white' 
-                    : aiTone === 'Professional' 
-                      ? 'bg-gray-200' 
-                      : aiTone === 'Friendly' 
-                        ? 'bg-blue-100' 
-                        : 'bg-gray-100'
-                }`}>
+                <div className={`flex max-w-[80%] items-start gap-3 rounded-lg p-3 ${getMessageBgClass(message.sender)}`}>
                   {message.sender === 'assistant' && (
                     <span className="relative flex shrink-0 overflow-hidden h-8 w-8">
                       {/* Gemini logo SVG */}
@@ -264,7 +293,9 @@ Here's the user query: ${userPrompt}`
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="flex max-w-[80%] items-start gap-3 rounded-lg p-3 bg-gray-100">
+                <div className={`flex max-w-[80%] items-start gap-3 rounded-lg p-3 ${
+                  darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100'
+                }`}>
                   <span className="relative flex shrink-0 overflow-hidden h-8 w-8 animate-pulse">
                     {/* Gemini logo SVG */}
                     <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
@@ -290,12 +321,20 @@ Here's the user query: ${userPrompt}`
         </div>
       </div>
       
-      {/* Message input fixed at bottom - REDESIGNED */}
-      <div className="border-t border-gray-300 bg-white p-[11.25px]">
+      {/* Message input fixed at bottom - REDESIGNED with dark mode */}
+      <div className={`border-t p-[11.25px] ${
+        darkMode 
+          ? 'border-gray-700 bg-gray-900' 
+          : 'border-gray-300 bg-white'
+      }`}>
         <div className="mx-auto flex max-w-3xl items-center gap-2">
           <div className="relative flex-1">
             <input
-              className="w-full rounded-lg border border-gray-300 bg-white py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+              className={`w-full rounded-lg border py-3 px-4 focus:outline-none focus:ring-2 ${
+                darkMode 
+                  ? 'border-gray-700 bg-gray-800 text-white focus:ring-blue-500 focus:border-blue-500' 
+                  : 'border-gray-300 bg-white focus:ring-blue-200 focus:border-blue-500'
+              }`}
               placeholder={aiTone === 'Concise' ? "Ask question..." : "Ask about the weather..."}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}

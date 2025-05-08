@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Cloud, Droplets, Thermometer, Wind, CloudRain, CloudSnow, CloudLightning, Sun, CloudFog } from "lucide-react";
-import { useWeather } from "../WeatherContext/WeatherContext"
+import { useWeather } from "../WeatherContext/WeatherContext";
 
 export default function WeatherCard() {
   const { 
     searchCity, 
     temperatureUnit,
-    handleCityChange 
+    handleCityChange,
+    darkMode 
   } = useWeather();
   
   const [weatherData, setWeatherData] = useState(null);
@@ -22,7 +23,6 @@ export default function WeatherCard() {
     const fetchWeatherData = async () => {
       setLoading(true);
       try {
-        
         const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
   
         const response = await fetch(
@@ -65,15 +65,6 @@ export default function WeatherCard() {
 
   const getTemperatureSymbol = () => {
     return temperatureUnit === "celsius" ? "°C" : "°F";
-  };
-
-  const getWeatherIconName = (weatherCode) => {
-    if (weatherCode >= 200 && weatherCode < 300) return "lightning";
-    if (weatherCode >= 300 && weatherCode < 600) return "rain";
-    if (weatherCode >= 600 && weatherCode < 700) return "snow";
-    if (weatherCode >= 700 && weatherCode < 800) return "fog";
-    if (weatherCode === 800) return "sun";
-    return "cloud";
   };
 
   const getWeatherIcon = (weatherCode) => {
@@ -127,9 +118,9 @@ export default function WeatherCard() {
 
   const WeatherStat = ({ icon, label, value }) => {
     return (
-      <div className="flex flex-col items-center rounded-lg bg-gray-100/50 p-2 ">
+      <div className={`flex flex-col items-center rounded-lg p-2 ${darkMode ? 'bg-gray-800' : 'bg-gray-100/50'}`}>
         {icon}
-        <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>
+        <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{label}</span>
         <span className="font-medium">{value}</span>
       </div>
     );
@@ -137,7 +128,9 @@ export default function WeatherCard() {
 
   if (loading) {
     return (
-      <div className="rounded-lg border border-gray-300 bg-white p-6 w-full flex items-center justify-center dark:bg-gray-800 dark:border-gray-700">
+      <div className={`rounded-lg border p-6 w-full flex items-center justify-center ${
+        darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300'
+      }`}>
         <p>Loading weather data...</p>
       </div>
     );
@@ -145,24 +138,30 @@ export default function WeatherCard() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-gray-300 bg-white p-6 w-full dark:bg-gray-800 dark:border-gray-700">
+      <div className={`rounded-lg border p-6 w-full ${
+        darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300'
+      }`}>
         <p className="text-red-500">{error}</p>
         <div className="mt-4">
           <input
             type="text"
             placeholder="Enter city name"
-            className="w-full p-2 border rounded"
+            className={`w-full p-2 border rounded ${
+              darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
+            }`}
             defaultValue={displayCity}
             onKeyDown={handleCityInputChange}
           />
-          <p className="text-xs text-gray-500 mt-1">Press Enter to search</p>
+          <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Press Enter to search</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-gray-300 bg-white w-full overflow-hidden ">
+    <div className={`rounded-lg border w-full overflow-hidden ${
+      darkMode ? 'bg-[#000000] border-gray-700 text-white' : 'bg-white border-gray-300'
+    }`}>
       {/* Header section */}
       {weatherData && (
         <>
@@ -171,7 +170,7 @@ export default function WeatherCard() {
               <h3 className="text-2xl font-semibold leading-none tracking-tight">
                 {weatherData.name}, {weatherData.sys.country}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 {weatherData.weather[0].description}
               </p>
             </div>
@@ -186,14 +185,14 @@ export default function WeatherCard() {
               </div>
             </div>
             
-            <div className="mt-4 rounded-lg bg-sky-50 p-3 ">
+            <div className={`mt-4 rounded-lg p-3 ${darkMode ? 'bg-sky-900/40' : 'bg-sky-50'}`}>
               <p className="text-sm">
                 <span className="font-medium">Weather advice:</span> {getWeatherAdvice(weatherData)}
               </p>
             </div>
             
             <div className="mt-4 grid grid-cols-3 gap-4">
-              <WeatherStat 
+              <WeatherStat
                 icon={<Thermometer className="mb-1 h-5 w-5 text-orange-500" />}
                 label="Feels like"
                 value={`${convertTemperature(weatherData.main.feels_like)}${getTemperatureSymbol()}`}

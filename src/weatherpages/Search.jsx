@@ -64,17 +64,17 @@ export default function SearchComponent() {
   // Helper function to determine the icon type based on weather code
   const getWeatherIconType = (weatherCode) => {
     if (weatherCode >= 200 && weatherCode < 300) {
-      return "cloud-rain"; // Thunderstorm
+      return "cloud-rain"; 
     } else if (weatherCode >= 300 && weatherCode < 600) {
-      return "cloud-rain"; // Drizzle and Rain
+      return "cloud-rain"; 
     } else if (weatherCode >= 600 && weatherCode < 700) {
-      return "cloud"; // Snow
+      return "cloud"; 
     } else if (weatherCode === 800) {
-      return "sun"; // Clear sky
+      return "sun"; 
     } else if (weatherCode > 800) {
-      return "cloud"; // Clouds
+      return "cloud"; 
     } else {
-      return "cloud"; // Default
+      return "cloud"; 
     }
   };
 
@@ -119,13 +119,12 @@ export default function SearchComponent() {
       'VN': 'Vietnam',
       'PH': 'Philippines',
       'BD': 'Bangladesh',
-      // Add more country mappings as needed
     };
     
     return countries[countryCode] || countryCode;
   };
 
-  // Function to fetch weather data
+  
   const fetchWeatherData = async (cityName) => {
     try {
       const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
@@ -139,7 +138,6 @@ export default function SearchComponent() {
       
       const data = await response.json();
       
-      // Update country from API - convert country code to full name
       if (data.sys && data.sys.country) {
         const countryName = getCountryName(data.sys.country);
         setCurrentCountry(countryName);
@@ -155,7 +153,6 @@ export default function SearchComponent() {
       }
     } catch (error) {
       console.error("Error fetching weather data:", error);
-      // Fallback to default weather info if API fails
       setWeatherInfo({
         condition: "Partly Cloudy",
         temperature: "72°",
@@ -191,10 +188,10 @@ export default function SearchComponent() {
       });
     } else {
       const cityName = searchCity.split(',')[0].trim();
-      // Use the country from our state which is populated from the API
+  
       const country = currentCountry || "Unknown";
       
-      // Create the location object with all required fields
+    
       const location = {
         city: cityName,
         country: country,
@@ -204,7 +201,7 @@ export default function SearchComponent() {
         removeExisting: false
       };
       
-      console.log("Adding to favorites:", location); // For debugging
+      console.log("Adding to favorites:", location); 
       addToFavorites(location);
     }
   };

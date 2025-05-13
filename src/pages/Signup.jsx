@@ -17,20 +17,20 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   const validateForm = () => {
-    // Name validation
+    
     if (name.trim().length < 2) {
       setError({ field: 'name', message: 'Name must be at least 2 characters long' });
       return false;
     }
 
-    // Email validation
+  
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError({ field: 'email', message: 'Please enter a valid email address' });
       return false;
     }
 
-    // Password validation - now requires 8 characters minimum
+  
     if (password.length < 8) {
       setError({ field: 'password', message: 'Password must be at least 8 characters long' });
       return false;
@@ -51,7 +51,7 @@ const SignUp = () => {
     }
 
     try {
-      // Check if email already exists in the users collection
+      
       const emailQuery = query(collection(db, "users"), where("email", "==", email));
       const emailSnapshot = await getDocs(emailQuery);
       
@@ -61,11 +61,11 @@ const SignUp = () => {
         return;
       }
 
-      // Create user with email and password
+      
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Create user document in Firestore
+      
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         name: name,
@@ -75,14 +75,14 @@ const SignUp = () => {
 
       setSuccess('Account created successfully! Redirecting to login...');
       
-      // Wait 2 seconds before redirecting to login
+      
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (error) {
       console.error("Registration Error", error);
       
-      // Handle specific Firebase auth errors
+    
       switch (error.code) {
         case 'auth/email-already-in-use':
           setError({ field: 'email', message: 'This email is already registered' });

@@ -13,16 +13,14 @@ export default function FavoriteCard() {
     darkMode
   } = useWeather();
 
-  // Function to convert temperature based on selected unit
+  
   const convertTemperature = (temperatureStr) => {
-    // Extract numeric value from temperature string (removing the degree symbol)
     const temperature = parseFloat(temperatureStr.replace('°', ''));
     
     if (temperatureUnit === "celsius") {
-      // Assuming stored temps are in Fahrenheit, convert to Celsius
       return `${Math.round((temperature - 32) * 5 / 9)}°`;
     }
-    // If user wants Fahrenheit, return as is
+    
     return `${Math.round(temperature)}°F`;
   };
 
